@@ -1,0 +1,43 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mall-chain-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root123}
+      MYSQL_DATABASE: mall-chain
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mall-chain.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+
+  redis:
+    image: redis:7.0-alpine
+    container_name: mall-chain-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  mall-chain:
+    image: mall-chain:latest
+    container_name: mall-chain-app
+    restart: unless-stopped
+    depends_on:
+      - mysql
+      - redis
+    ports:
+      - "10010:10010"
+    environment:
+      SPRING_PROFILE: ${SPRING_PROFILE:-prod}
+      JAVA_OPTS: ${JAVA_OPTS:--Xms2g -Xmx4g -XX:+UseG1GC -Dfile.encoding=UTF-8}
+    volumes:
+      - mall-chain-logs:/data/app/logs/mall_chain
+
+volumes:
+  mysql-data:
+  redis-data:
+  mall-chain-logs:
