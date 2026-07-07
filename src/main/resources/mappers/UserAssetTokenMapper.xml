@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.UserAssetTokenMapper">
+
+    <insert id="insert">
+        insert into user_asset_token(goods_id, sku_id, address, ct_id, token_id, num, update_time)
+        VALUES (#{goodsId}, #{skuId}, #{address}, #{ctId}, #{tokenId}, #{num}, #{time})
+    </insert>
+
+    <insert id="updateNum">
+        update user_asset_token
+        set num         = #{num},
+            update_time = #{time}
+        where goods_id = #{goodsId}
+          and sku_id = #{skuId}
+          and address = #{address}
+          and ct_id = #{ctId}
+          and token_id = #{tokenId}
+    </insert>
+
+    <select id="getByAddressCtIdTokenId" resultType="com.fzm.mall.entity.dataobject.UserAssetTokenDO">
+        select *
+        from user_asset_token
+        where address = #{address}
+          and ct_id = #{ctId}
+          and token_id = #{tokenId}
+    </select>
+
+    <select id="listByGoodsIdAddress" resultType="com.fzm.mall.entity.dataobject.UserAssetTokenDO">
+        select *
+        from user_asset_token
+        where goods_id = #{goodsId}
+          and address = #{address}
+          and num > 0
+        order by update_time desc
+    </select>
+
+    <select id="listByPageQO" resultType="com.fzm.mall.entity.dataobject.UserAssetTokenDO">
+        select uat.*
+        from user_asset_token uat
+        left join goods_spu spu on uat.goods_id = spu.goods_id
+        left join goods_sku sku on uat.sku_id = sku.sku_id
+        <where>
+            uat.num > 0
+            <if test="address != null and address != ''">
+                and uat.address = #{address}
+            </if>
+            <if test="spuType != null and spuType != -1">
+                <choose>
+                    <when test="spuType == 0">
+                        and (spu.type = 0 or (spu.type = 1 and sku.blind_box_type = 0))
+                    </when>
+                    <when test="spuType == 1">
+                        and spu.type = 1 and sku.blind_box_type = 1
+                    </when>
+                </choose>
+            </if>
+            <if test="vague != null and vague != ''">
+                and (
+                uat.address = #{vague}
+                or uat.token_id = #{vague}
+                or uat.sku_id = #{vague}
+                or uat.goods_id = #{vague}
+                or spu.name like CONCAT('%', #{vague}, '%')
+                or sku.name like CONCAT('%', #{vague}, '%')
+                or sku.token_name like CONCAT('%', #{vague}, '%')
+                )
+            </if>
+        </where>
+        order by uat.update_time desc
+    </select>
+
+</mapper>

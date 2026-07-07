@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.SysBannerMapper">
+
+    <insert id="insert">
+        insert into sys_banner(title, cover, target, show_order, `status`, start_time, end_time, create_time)
+        VALUES (#{title}, #{cover}, #{target}, #{showOrder}, #{status}, #{startTime}, #{endTime}, #{createTime})
+    </insert>
+
+    <update id="updateById">
+        update sys_banner
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="cover != null">
+                cover = #{cover},
+            </if>
+            <if test="target != null">
+                target = #{target},
+            </if>
+            <if test="showOrder != null">
+                show_order = #{showOrder},
+            </if>
+            <if test="status != null">
+                `status` = #{status},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="endTime != null">
+                end_time = #{endTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delById">
+        delete
+        from sys_banner
+        where id = #{id}
+    </delete>
+
+    <select id="getById" resultType="com.fzm.mall.entity.dataobject.SysBannerDO">
+        select *
+        from sys_banner
+        where id = #{id}
+    </select>
+
+    <select id="listByPageQO" resultType="com.fzm.mall.entity.dataobject.SysBannerDO">
+        select *
+        from sys_banner
+        <where>
+            <if test="status != null and status != -1">
+                and `status` = #{status}
+            </if>
+            <if test="nowDateTime != null">
+                and #{nowDateTime} >= start_time
+                and end_time >= #{nowDateTime}
+            </if>
+        </where>
+        order by show_order
+    </select>
+
+</mapper>

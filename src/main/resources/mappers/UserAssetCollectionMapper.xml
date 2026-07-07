@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.UserAssetCollectionMapper">
+
+    <insert id="insert">
+        insert into user_asset_collection(goods_id, address, num, update_time)
+        select #{goodsId}, #{address}, ifnull(sum(t.num), 0), #{time}
+        from user_asset_token t
+        where t.goods_id = #{goodsId}
+          and t.address = #{address}
+    </insert>
+
+    <update id="updateNum">
+        update user_asset_collection c
+        set c.num         = (select ifnull(sum(t.num), 0)
+                             from user_asset_token t
+                             where c.goods_id = t.goods_id
+                               and c.address = t.address),
+            c.update_time = #{time}
+        where c.goods_id = #{goodsId}
+          and c.address = #{address}
+    </update>
+
+    <select id="getByGoodsIdAddress" resultType="com.fzm.mall.entity.dataobject.UserAssetCollectionDO">
+        select *
+        from user_asset_collection
+        where goods_id = #{goodsId}
+          and address = #{address}
+    </select>
+
+    <select id="listByPageQO" resultType="com.fzm.mall.entity.dataobject.UserAssetCollectionDO">
+        select uac.*
+        from user_asset_collection uac
+        left join goods_spu spu on uac.goods_id = spu.goods_id
+        <where>
+            uac.num > 0
+            <if test="address != null and address != ''">
+                and uac.address = #{address}
+            </if>
+            <if test="spuType != null and spuType != -1">
+                and spu.type = #{spuType}
+            </if>
+            <if test="vague != null and vague != ''">
+                and (
+                uac.goods_id = #{vague}
+                or uac.address = #{vague}
+                or spu.name like CONCAT('%', #{vague}, '%')
+                )
+            </if>
+        </where>
+        order by uac.update_time desc
+    </select>
+</mapper>

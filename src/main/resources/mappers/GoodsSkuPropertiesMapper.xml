@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.GoodsSkuPropertiesMapper">
+
+    <insert id="insert">
+        insert into goods_sku_properties(goods_id, title_1, value_1_json, title_2, value_2_json)
+        VALUES (#{goodsId}, #{title1}, #{value1Json}, #{title2}, #{value2Json})
+    </insert>
+
+    <update id="updateByGoodsId">
+        update goods_sku_properties
+        set title_1      = #{title1},
+            value_1_json = #{value1Json},
+            title_2      = #{title2},
+            value_2_json = #{value2Json}
+        where goods_id = #{goodsId}
+    </update>
+
+    <delete id="deleteByGoodsId">
+        delete
+        from goods_sku_properties
+        where goods_id = #{goodsId}
+    </delete>
+
+    <select id="getByGoodsId" resultType="com.fzm.mall.entity.dataobject.GoodsSkuPropertiesDO">
+        select *
+        from goods_sku_properties
+        where goods_id = #{goodsId}
+    </select>
+</mapper>

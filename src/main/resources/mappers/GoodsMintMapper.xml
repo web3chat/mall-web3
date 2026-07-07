@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.GoodsMintMapper">
+
+    <insert id="insertBatch">
+        insert into goods_mint(goods_id, sku_id, start_num, end_num, `status`, uri_status, tx_hash, tx_note)
+        VALUES
+        <foreach collection="list" item="o" separator=",">
+            (#{o.goodsId},
+            #{o.skuId},
+            #{o.startNum},
+            #{o.endNum},
+            #{o.status},
+            #{o.uriStatus},
+            #{o.txHash},
+            #{o.txNote})
+        </foreach>
+    </insert>
+
+    <update id="updateBatchUriStatusBySkuId">
+        update goods_mint
+        set uri_status = #{toStatus}
+        where sku_id = #{skuId}
+          and uri_status = #{fromStatus}
+    </update>
+
+    <update id="updateBatchStatusByGoodsId">
+        update goods_mint
+        set `status` = #{toStatus}
+        where goods_id = #{goodsId}
+          and `status` = #{fromStatus}
+    </update>
+
+    <update id="updateBatchUriStatusByGoodsId">
+        update goods_mint
+        set uri_status = #{toStatus}
+        where goods_id = #{goodsId}
+          and uri_status = #{fromStatus}
+    </update>
+
+    <update id="update">
+        update goods_mint
+        <set>
+            <if test="status != null">
+                `status` = #{status},
+            </if>
+            <if test="uriStatus != null">
+                uri_status = #{uriStatus}
+            </if>
+            <if test="txHash != null">
+                tx_hash = #{txHash},
+            </if>
+            <if test="txNote != null">
+                tx_note = #{txNote},
+            </if>
+        </set>
+        where goods_id = #{goodsId}
+        and sku_id = #{skuId}
+        and start_num = #{startNum}
+        and end_num = #{endNum}
+        <if test="originalStatus != null">
+            and `status` = #{originalStatus}
+        </if>
+        <if test="originalUriStatus != null">
+            and uri_status = #{originalUriStatus}
+        </if>
+    </update>
+
+    <select id="listBySkuId" resultType="com.fzm.mall.entity.dataobject.GoodsMintDO">
+        select *
+        from goods_mint
+        where sku_id = #{skuId}
+    </select>
+
+    <select id="listByStatusLimit" resultType="com.fzm.mall.entity.dataobject.GoodsMintDO">
+        select *
+        from goods_mint
+        where `status` = #{status}
+           or uri_status = #{status}
+        order by goods_id, sku_id, start_num
+        limit 50
+    </select>
+
+</mapper>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration debug="false" scan="true" scanPeriod="30 seconds">
+
+    <!-- 公共配置 -->
+    <property name="LOG_PATH" value="/data/app/logs"/>
+    <property name="APP_NAME" value="mall_chain"/>
+    <property name="LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss} %green([%X{traceId}]) %highlight(%-5level) %magenta([%thread]) %yellow(%logger{36}) - %msg%n"/>
+    <property name="MAX_HISTORY" value="90"/>
+
+    <!-- 环境变量读取 -->
+    <springProperty name="ACTIVE_PROFILE" source="spring.profiles.active"/>
+    <springProperty name="LOG_ASYNC_QUEUE" source="logging.async.queue-size" defaultValue="2048"/>
+
+    <!-- 结构化日志（JSON） -->
+    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${APP_NAME}/app.json</file>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"app":"${APP_NAME}","env":"${ACTIVE_PROFILE}"}</customFields>
+            <includeContext>false</includeContext>
+            <timeZone>Asia/Shanghai</timeZone>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}/app-%d{yyyy-MM-dd}.%i.json.gz</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>5GB</totalSizeCap>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>info</level>
+        </filter>
+    </appender>
+
+    <!-- 异步日志 -->
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>${LOG_ASYNC_QUEUE}</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="JSON_FILE"/>
+    </appender>
+
+    <!-- 控制台输出 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 日志级别控制 -->
+    <!--    <springProfile name="dev">-->
+    <!--        <logger name="com.fzm" level="DEBUG"/>-->
+    <!--    </springProfile>-->
+    <logger name="org.apache.coyote.http11.Http11Processor" level="warn"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <!--        <appender-ref ref="ASYNC"/>-->
+        <appender-ref ref="JSON_FILE"/>
+    </root>
+
+</configuration>

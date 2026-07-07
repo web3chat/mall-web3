@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.SysNoticeMapper">
+
+    <insert id="insert">
+        insert into sys_notice(classify_json, title, content, cover, `status`, top, scroll, active_time,
+                               create_time)
+        VALUES (#{classifyJson}, #{title}, #{content}, #{cover}, #{status}, #{top}, #{scroll}, #{activeTime},
+                #{createTime})
+    </insert>
+
+    <update id="updateById">
+        update sys_notice
+        <set>
+            <if test="classifyJson != null">
+                classify_json = #{classifyJson},
+            </if>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="content != null">
+                content = #{content},
+            </if>
+            <if test="cover != null">
+                cover = #{cover},
+            </if>
+            <if test="status != null">
+                `status` = #{status},
+            </if>
+            <if test="top != null">
+                top = #{top},
+            </if>
+            <if test="scroll != null">
+                scroll = #{scroll},
+            </if>
+            <if test="activeTime != null">
+                active_time = #{activeTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="delById">
+        delete
+        from sys_notice
+        where id = #{id}
+    </delete>
+
+    <select id="getById" resultType="com.fzm.mall.entity.dataobject.SysNoticeDO">
+        select *
+        from sys_notice
+        where id = #{id}
+    </select>
+
+    <select id="listByPageQO" resultType="com.fzm.mall.entity.dataobject.SysNoticeDO">
+        select *
+        from sys_notice
+        <where>
+            <if test="status != null and status != -1">
+                and `status` = #{status}
+            </if>
+            <if test="top != null and top != -1">
+                and top = #{top}
+            </if>
+            <if test="scroll != null and scroll != -1">
+                and scroll = #{scroll}
+            </if>
+            <if test="nowDateTime != null">
+                and #{nowDateTime} >= active_time
+            </if>
+        </where>
+        order by top desc, id desc
+    </select>
+
+</mapper>

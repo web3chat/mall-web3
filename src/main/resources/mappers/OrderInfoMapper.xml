@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.OrderInfoMapper">
+
+    <insert id="insert">
+        insert into order_info(order_id, seller_address, buyer_address, goods_id, sku_id, token_id_json, num, price,
+                               amount, pay_chain, pay_coin, pay_price, pay_amount, pay_hash, `status`, order_time,
+                               expire_time, tx_status, tx_hash, tx_note, unfreeze_status, unfreeze_time,
+                               client_ip, user_agent, delete_status, refund_note, refund_apply_tx_hash,
+                               refund_price, refund_amount, refund_tx_status, refund_tx_hash, refund_tx_note,
+                               express_type, express_json)
+        VALUES (#{orderId},
+                #{sellerAddress},
+                #{buyerAddress},
+                #{goodsId},
+                #{skuId},
+                #{tokenIdJson},
+                #{num},
+                #{price},
+                #{amount},
+                #{payChain},
+                #{payCoin},
+                #{payPrice},
+                #{payAmount},
+                #{payHash},
+                #{status},
+                #{orderTime},
+                #{expireTime},
+                #{txStatus},
+                #{txHash},
+                #{txNote},
+                #{unfreezeStatus},
+                #{unfreezeTime},
+                #{clientIp},
+                #{userAgent},
+                #{deleteStatus},
+                #{refundNote},
+                #{refundApplyTxHash},
+                #{refundPrice},
+                #{refundAmount},
+                #{refundTxStatus},
+                #{refundTxHash},
+                #{refundTxNote},
+                #{expressType},
+                #{expressJson})
+    </insert>
+
+    <update id="updateByOrderId">
+        update order_info
+        <set>
+            <if test="tokenIdJson != null">
+                token_id_json = #{tokenIdJson},
+            </if>
+            <if test="payChain != null">
+                pay_chain = #{payChain},
+            </if>
+            <if test="payCoin != null">
+                pay_coin = #{payCoin},
+            </if>
+            <if test="payPrice != null">
+                pay_price = #{payPrice},
+            </if>
+            <if test="payAmount != null">
+                pay_amount = #{payAmount},
+            </if>
+            <if test="payHash != null">
+                pay_hash = #{payHash},
+            </if>
+            <if test="status != null">
+                `status` = #{status},
+            </if>
+            <if test="payTime != null">
+                pay_time = #{payTime},
+            </if>
+            <if test="cancelTime != null">
+                cancel_time = #{cancelTime},
+            </if>
+            <if test="txStatus != null">
+                tx_status = #{txStatus},
+            </if>
+            <if test="txHash != null">
+                tx_hash = #{txHash},
+            </if>
+            <if test="txNote != null">
+                tx_note = #{txNote},
+            </if>
+            <if test="unfreezeStatus != null">
+                unfreeze_status = #{unfreezeStatus},
+            </if>
+            <if test="unfreezeTime != null">
+                unfreeze_time = #{unfreezeTime},
+            </if>
+            <if test="deleteStatus != null">
+                delete_status = #{deleteStatus},
+            </if>
+            <if test="refundNote != null">
+                refund_note = #{refundNote},
+            </if>
+            <if test="refundApplyTxHash != null">
+                refund_apply_tx_hash = #{refundApplyTxHash},
+            </if>
+            <if test="refundPrice != null">
+                refund_price = #{refundPrice},
+            </if>
+            <if test="refundAmount != null">
+                refund_amount = #{refundAmount},
+            </if>
+            <if test="refundTxStatus != null">
+                refund_tx_status = #{refundTxStatus},
+            </if>
+            <if test="refundTxHash != null">
+                refund_tx_hash = #{refundTxHash},
+            </if>
+            <if test="refundTxNote != null">
+                refund_tx_note = #{refundTxNote},
+            </if>
+        </set>
+        <where>
+            <if test="orderId != null">
+                and order_id = #{orderId}
+            </if>
+            <if test="orderIds != null">
+                and order_id in
+                <foreach collection="orderIds" separator="," open="(" item="orderId" close=")">
+                    #{orderId}
+                </foreach>
+            </if>
+            <if test="originalStatus != null">
+                and `status` = #{originalStatus}
+            </if>
+            <if test="originalTxStatus != null">
+                and tx_status = #{originalTxStatus}
+            </if>
+            <if test="oldUnfreezeStatus != null">
+                and unfreeze_status = #{oldUnfreezeStatus}
+            </if>
+            <if test="originalRefundTxStatus != null">
+                and refund_tx_status = #{originalRefundTxStatus}
+            </if>
+        </where>
+    </update>
+
+    <select id="getByOrderId" resultType="com.fzm.mall.entity.dataobject.OrderInfoDO">
+        select *
+        from order_info
+        where order_id = #{orderId}
+    </select>
+
+    <select id="listExpired" resultType="com.fzm.mall.entity.dataobject.OrderInfoDO">
+        select *
+        from order_info
+        where `status` = #{status}
+          and #{dateTime} >= expire_time
+        limit 50
+    </select>
+
+    <select id="listTransfer" resultType="com.fzm.mall.entity.dataobject.OrderInfoDO">
+        select *
+        from order_info
+        where `status` = #{status}
+          and tx_status = #{txStatus}
+        limit 50
+    </select>
+
+    <select id="listRefundTransfer" resultType="com.fzm.mall.entity.dataobject.OrderInfoDO">
+        select *
+        from order_info
+        where `status` = #{status}
+          and refund_tx_status = #{txStatus}
+        limit 50
+    </select>
+
+    <select id="listByPageQO" resultType="com.fzm.mall.entity.dataobject.OrderInfoDO">
+        select info.*
+        from order_info info
+        left join goods_spu spu on spu.goods_id = info.goods_id
+        left join goods_sku sku on sku.sku_id = info.sku_id
+        <where>
+            <if test="sellerAddress != null and sellerAddress != ''">
+                and info.seller_address = #{sellerAddress}
+            </if>
+            <if test="buyerAddress != null and buyerAddress != ''">
+                and info.buyer_address = #{buyerAddress}
+            </if>
+            <if test="status != null and status != -1">
+                and info.`status` = #{status}
+            </if>
+            <if test="txStatus != null and txStatus != -1">
+                and info.tx_status = #{txStatus}
+            </if>
+            <if test="deleteStatus != null and deleteStatus != -1">
+                and info.delete_status = #{deleteStatus}
+            </if>
+            <if test="vague != null and vague != ''">
+                and (
+                info.order_id = #{vague}
+                or info.seller_address = #{vague}
+                or info.buyer_address = #{vague}
+                or info.goods_id = #{vague}
+                or info.sku_id = #{vague}
+                or info.pay_hash = #{vague}
+                or info.tx_hash = #{vague}
+                or info.refund_apply_tx_hash = #{vague}
+                or info.refund_tx_hash = #{vague}
+                or spu.name like CONCAT('%', #{vague}, '%')
+                or sku.name like CONCAT('%', #{vague}, '%')
+                or sku.token_name like CONCAT('%', #{vague}, '%')
+                )
+            </if>
+        </where>
+        order by info.order_id desc
+    </select>
+
+    <select id="listUnfreeze" resultType="com.fzm.mall.entity.dataobject.OrderInfoDO">
+        select *
+        from order_info
+        where unfreeze_status = #{unfreezeStatus}
+          and #{nowTimestamp} > unfreeze_time
+    </select>
+
+</mapper>

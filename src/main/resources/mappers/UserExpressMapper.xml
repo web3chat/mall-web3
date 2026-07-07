@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.UserExpressMapper">
+    <insert id="insert">
+        insert into user_express(address, name, phone, region, location, status, create_time)
+        VALUES (#{address}, #{name}, #{phone}, #{region}, #{location}, #{status}, #{createTime})
+    </insert>
+
+    <update id="update">
+        update user_express
+        set name     = #{name},
+            phone    = #{phone},
+            region   = #{region},
+            location = #{location},
+            status   = #{status}
+        where id = #{id}
+    </update>
+
+    <update id="updateStatusByAddress">
+        update user_express
+        set status = #{toStatus}
+        where address = #{address}
+    </update>
+
+    <delete id="deleteById">
+        delete
+        from user_express
+        where id = #{id}
+    </delete>
+
+    <select id="getById" resultType="com.fzm.mall.entity.dataobject.UserExpressDO">
+        select *
+        from user_express
+        where id = #{id}
+    </select>
+
+    <select id="listByAddress" resultType="com.fzm.mall.entity.dataobject.UserExpressDO">
+        select *
+        from user_express
+        where address = #{address}
+    </select>
+</mapper>

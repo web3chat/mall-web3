@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.UserMapper">
+    <insert id="register">
+        insert into `user`(address,
+                           parent_address,
+                           `status`,
+                           nickname,
+                           head_url,
+                           invite_num,
+                           register_ip,
+                           register_time)
+        VALUES (#{address},
+                #{parentAddress},
+                #{status},
+                #{nickname},
+                #{headUrl},
+                #{inviteNum},
+                #{registerIp},
+                #{registerTime})
+    </insert>
+
+    <update id="updateByAddress">
+        update `user`
+        <set>
+            <if test="parentAddress != null">
+                parent_address = #{parentAddress},
+            </if>
+            <if test="status != null">
+                `status` = #{status},
+            </if>
+            <if test="nickname != null">
+                nickname = #{nickname},
+            </if>
+            <if test="headUrl != null">
+                head_url = #{headUrl},
+            </if>
+            <if test="latestLoginIp != null">
+                latest_login_ip = #{latestLoginIp},
+            </if>
+            <if test="latestLoginTime != null">
+                latest_login_time = #{latestLoginTime},
+            </if>
+        </set>
+        where address = #{address}
+    </update>
+
+    <update id="addInviteNumByAddress">
+        update `user`
+        set invite_num = invite_num + #{num}
+        where address = #{address}
+    </update>
+
+    <select id="getByUid" resultType="com.fzm.mall.entity.dataobject.UserDO">
+        select *
+        from `user`
+        where uid = #{uid}
+    </select>
+
+    <select id="getByAddress" resultType="com.fzm.mall.entity.dataobject.UserDO">
+        select *
+        from `user`
+        where address = #{address}
+    </select>
+
+    <select id="listByPageQO" resultType="com.fzm.mall.entity.dataobject.UserDO">
+        select *
+        from `user`
+        <where>
+            <if test="status != null and status != -1">
+                and `status` = #{status}
+            </if>
+            <if test="parentAddress != null and parentAddress != ''">
+                and parent_address = #{parentAddress}
+            </if>
+            <if test="startTime != null">
+                and register_time >= #{startTime}
+            </if>
+            <if test="endTime != null">
+                and #{endTime} >= register_time
+            </if>
+            <if test="vague != null and vague != ''">
+                and (
+                address = #{vague}
+                or parent_address = #{vague}
+                or nickname like CONCAT('%', #{vague}, '%')
+                )
+            </if>
+        </where>
+        order by uid desc
+    </select>
+
+</mapper>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.SysMenuMapper">
+
+    <insert id="insert">
+        insert into sys_menu(title, cover, status, show_order, create_time)
+        VALUES (#{title}, #{cover}, #{status}, #{showOrder}, #{createTime})
+    </insert>
+
+    <update id="updateById">
+        update sys_menu
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="cover != null">
+                cover = #{cover},
+            </if>
+            <if test="status != null">
+                `status` = #{status},
+            </if>
+            <if test="showOrder != null">
+                show_order = #{showOrder},
+            </if>
+        </set>
+        where menu_id = #{menuId}
+    </update>
+
+    <delete id="delById">
+        delete
+        from sys_menu
+        where menu_id = #{menuId}
+    </delete>
+
+    <select id="getById" resultType="com.fzm.mall.entity.dataobject.SysMenuDO">
+        select *
+        from sys_menu
+        where menu_id = #{menuId}
+    </select>
+
+    <select id="listByPageQO" resultType="com.fzm.mall.entity.dataobject.SysMenuDO">
+        select *
+        from sys_menu
+        <where>
+            <if test="status != null and status != -1">
+                and `status` = #{status}
+            </if>
+        </where>
+        order by show_order asc, menu_id desc
+    </select>
+
+</mapper>

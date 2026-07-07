@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.OrderLimitMapper">
+
+    <insert id="insert">
+        insert into order_limit(goods_id, sku_id, address, num)
+        VALUES (#{goodsId}, #{skuId}, #{address}, #{num})
+    </insert>
+
+    <update id="addNum">
+        update order_limit
+        set num = num + #{num}
+        where goods_id = #{goodsId}
+        and sku_id = #{skuId}
+        and address = #{address}
+        <if test="limit > 0">
+            and #{limit} >= num + #{num}
+        </if>
+    </update>
+
+    <update id="subNum">
+        update order_limit
+        set num = if(num - #{num} > 0, num - #{num}, 0)
+        where goods_id = #{goodsId}
+          and sku_id = #{skuId}
+          and address = #{address}
+    </update>
+
+    <select id="getByGoodsIdAddress" resultType="com.fzm.mall.entity.dataobject.OrderLimitDO">
+        select *
+        from order_limit
+        where goods_id = #{goodsId}
+          and sku_id = #{skuId}
+          and address = #{address}
+    </select>
+</mapper>

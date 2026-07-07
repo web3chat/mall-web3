@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.AirdropWhiteMapper">
+    <insert id="insertBatch">
+        insert into airdrop_white(info_id, address, meta_type, meta_id, num, token_id_json)
+        VALUES
+        <foreach collection="list" item="o" separator=",">
+            (#{o.infoId},
+            #{o.address},
+            #{o.metaType},
+            #{o.metaId},
+            #{o.num},
+            #{o.tokenIdJson})
+        </foreach>
+    </insert>
+
+    <update id="updateTokenIdJsonById">
+        update airdrop_white
+        set token_id_json = #{tokenIdJson}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteByInfoId">
+        delete
+        from airdrop_white
+        where info_id = #{infoId}
+    </delete>
+
+    <select id="listByInfoId" resultType="com.fzm.mall.entity.dataobject.AirdropWhiteDO">
+        select *
+        from airdrop_white
+        where info_id = #{infoId}
+    </select>
+</mapper>

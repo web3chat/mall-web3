@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.UserBackAssetMapper">
+    <insert id="insert">
+        insert into user_back_asset(address, coin_type, balance, frozen_balance)
+        VALUES (#{address}, #{coinType}, #{balance}, #{frozenBalance})
+    </insert>
+
+    <update id="updateBalance">
+        update user_back_asset
+        set balance        = balance + #{changeBalance},
+            frozen_balance = frozen_balance + #{changeFrozenBalance}
+        where address = #{address}
+          and coin_type = #{coinType}
+          and balance + #{changeBalance} >= 0
+          and frozen_balance + #{changeFrozenBalance} >= 0
+    </update>
+
+
+    <select id="getAssetByAddressCoinType" resultType="com.fzm.mall.entity.dataobject.UserBackAssetDO">
+        select *
+        from user_back_asset
+        where address = #{address}
+          and coin_type = #{coinType}
+    </select>
+
+    <select id="listByPageQO" resultType="com.fzm.mall.entity.dataobject.UserBackAssetDO">
+        select *
+        from user_back_asset
+        <where>
+            <if test="address != null and address != ''">
+                and address = #{address}
+            </if>
+            <if test="coinType != null and coinType >= 0">
+                and coin_type = #{coinType}
+            </if>
+        </where>
+        order by coin_type
+    </select>
+</mapper>

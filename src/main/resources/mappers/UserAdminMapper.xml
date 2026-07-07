@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.UserAdminMapper">
+    <insert id="register" useGeneratedKeys="true" keyProperty="uid" keyColumn="uid">
+        insert into user_admin(address,
+                               parent_address,
+                               `status`,
+                               `role`,
+                               child_role,
+                               nickname,
+                               head_url,
+                               apply_status,
+                               profit_sharing,
+                               register_ip,
+                               register_time)
+        VALUES (#{address},
+                #{parentAddress},
+                #{status},
+                #{role},
+                #{childRole},
+                #{nickname},
+                #{headUrl},
+                #{applyStatus},
+                #{profitSharing},
+                #{registerIp},
+                #{registerTime})
+    </insert>
+
+    <update id="updateInsideByAddress">
+        update user_admin
+        set inside_address     = #{insideAddress},
+            inside_private_key = #{insidePrivateKey}
+        where address = #{address}
+    </update>
+
+    <update id="updateByAddress">
+        update user_admin
+        <set>
+            <if test="parentAddress != null and parentAddress != ''">
+                parent_address = #{parentAddress},
+            </if>
+            <if test="status != null">
+                `status` = #{status},
+            </if>
+            <if test="role != null">
+                `role` = #{role},
+            </if>
+            <if test="childRole != null">
+                child_role = #{childRole},
+            </if>
+            <if test="nickname != null and nickname != ''">
+                nickname = #{nickname},
+            </if>
+            <if test="headUrl != null and headUrl != ''">
+                head_url = #{headUrl},
+            </if>
+            <if test="applyStatus != null">
+                apply_status = #{applyStatus},
+            </if>
+            <if test="profitSharing != null">
+                profit_sharing = #{profitSharing},
+            </if>
+            <if test="registerIp != null">
+                register_ip = #{registerIp},
+            </if>
+            <if test="latestLoginIp != null">
+                latest_login_ip = #{latestLoginIp},
+            </if>
+            <if test="latestLoginTime != null">
+                latest_login_time = #{latestLoginTime},
+            </if>
+        </set>
+        where address = #{address}
+    </update>
+
+
+    <select id="getByAddress" resultType="com.fzm.mall.entity.dataobject.UserAdminDO">
+        select *
+        from user_admin
+        where address = #{address}
+    </select>
+
+    <select id="getByInsideAddress" resultType="com.fzm.mall.entity.dataobject.UserAdminDO">
+        select *
+        from user_admin
+        where inside_address = #{insideAddress}
+    </select>
+
+    <select id="listByAddressList" resultType="com.fzm.mall.entity.dataobject.UserAdminDO">
+        select *
+        from user_admin
+        where address in
+        <foreach collection="list" separator="," open="(" item="address" close=")">
+            #{address}
+        </foreach>
+    </select>
+
+    <select id="listByPageQO" resultType="com.fzm.mall.entity.dataobject.UserAdminDO">
+        select *
+        from user_admin
+        <where>
+            <if test="role != null and role != -1">
+                and `role` = #{role}
+            </if>
+            <if test="childRole != null and childRole != -1">
+                and `child_role` = #{childRole}
+            </if>
+            <if test="status != null and status != -1">
+                and `status` = #{status}
+            </if>
+            <if test="applyStatus != null and applyStatus != -1">
+                and `apply_status` = #{applyStatus}
+            </if>
+            <if test="parentAddress != null and parentAddress != ''">
+                and parent_address = #{parentAddress}
+            </if>
+            <if test="startTime != null">
+                and register_time >= #{startTime}
+            </if>
+            <if test="endTime != null">
+                and #{endTime} >= register_time
+            </if>
+            <if test="vague != null and vague != ''">
+                and (
+                address = #{vague}
+                or parent_address = #{vague}
+                or inside_address = #{vague}
+                or nickname like CONCAT('%', #{vague}, '%')
+                )
+            </if>
+        </where>
+        order by uid desc
+    </select>
+
+</mapper>

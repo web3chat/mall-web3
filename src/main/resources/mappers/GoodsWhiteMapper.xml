@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.GoodsWhiteMapper">
+
+    <insert id="insertBatch">
+        insert into goods_white(goods_id, sku_id, address, num) VALUES
+        <foreach collection="list" item="o" separator=",">
+            (#{o.goodsId},
+            #{o.skuId},
+            #{o.address},
+            #{o.num})
+        </foreach>
+    </insert>
+
+    <delete id="deleteByGoodsId">
+        delete
+        from goods_white
+        where goods_id = #{goodsId}
+    </delete>
+
+    <select id="listByGoodsId" resultType="com.fzm.mall.entity.dataobject.GoodsWhiteDO">
+        select *
+        from goods_white
+        where goods_id = #{goodsId}
+    </select>
+
+    <select id="getByGoodsIdSkuIdAddress" resultType="com.fzm.mall.entity.dataobject.GoodsWhiteDO">
+        select *
+        from goods_white
+        where goods_id = #{goodsId}
+          and sku_id = #{skuId}
+          and address = #{address}
+    </select>
+</mapper>

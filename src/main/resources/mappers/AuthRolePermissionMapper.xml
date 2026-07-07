@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.AuthRolePermissionMapper">
+    <insert id="insertBatch">
+        insert into auth_role_permission(role_id, permission_id) VALUES
+        <foreach collection="permissionIds" item="permissionId" separator=",">
+            (#{childRole}, #{permissionId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteByChildRole">
+        delete
+        from auth_role_permission
+        where role_id = #{childRole}
+    </delete>
+
+    <select id="listByChildRole" resultType="com.fzm.mall.entity.dataobject.AuthPermissionDO">
+        select ap.*
+        from auth_role_permission arp
+                 left join auth_permission ap on arp.permission_id = ap.id
+        where arp.role_id = #{childRole}
+        order by ap.id
+    </select>
+
+</mapper>

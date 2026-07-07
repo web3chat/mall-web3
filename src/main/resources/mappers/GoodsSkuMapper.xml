@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.GoodsSkuMapper">
+
+    <insert id="insertBatch">
+        insert into goods_sku(goods_id,
+        sku_id,
+        address,
+        token_prefix,
+        prop_value_1,
+        prop_value_2,
+        name,
+        token_name,
+        cover,
+        price,
+        total,
+        sales,
+        order_limit,
+        order_pack,
+        express_type,
+        blind_box_type,
+        trace_hash,
+        `status`,
+        create_time)
+        VALUES
+        <foreach collection="list" item="o" separator=",">
+            (#{o.goodsId},
+            #{o.skuId},
+            #{o.address},
+            #{o.tokenPrefix},
+            #{o.propValue1},
+            #{o.propValue2},
+            #{o.name},
+            #{o.tokenName},
+            #{o.cover},
+            #{o.price},
+            #{o.total},
+            #{o.sales},
+            #{o.orderLimit},
+            #{o.orderPack},
+            #{o.expressType},
+            #{o.blindBoxType},
+            #{o.traceHash},
+            #{o.status},
+            #{o.createTime})
+        </foreach>
+    </insert>
+
+    <update id="updateBySkuId">
+        update goods_sku
+        <set>
+            <if test="propValue1 != null">
+                prop_value_1 = #{propValue1},
+            </if>
+            <if test="propValue2 != null">
+                prop_value_2 = #{propValue2},
+            </if>
+            <if test="name != null">
+                `name` = #{name},
+            </if>
+            <if test="tokenName != null">
+                token_name = #{tokenName},
+            </if>
+            <if test="cover != null">
+                cover = #{cover},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="total != null">
+                total = #{total},
+            </if>
+            <if test="orderLimit != null">
+                order_limit = #{orderLimit},
+            </if>
+            <if test="orderPack != null">
+                order_pack = #{orderPack},
+            </if>
+            <if test="expressType != null">
+                express_type = #{expressType},
+            </if>
+            <if test="blindBoxType != null">
+                blind_box_type = #{blindBoxType},
+            </if>
+            <if test="traceHash != null">
+                trace_hash = #{traceHash},
+            </if>
+            <if test="status != null">
+                `status` = #{status},
+            </if>
+        </set>
+        where sku_id = #{skuId}
+        <if test="originalStatus != null">
+            and `status` = #{originalStatus}
+        </if>
+    </update>
+
+    <update id="updateBatchStatusBySkuId">
+        update goods_sku
+        set `status` = #{toStatus}
+        where goods_id = #{goodsId}
+          and `status` = #{fromStatus}
+    </update>
+
+    <delete id="deleteByGoodsId">
+        delete
+        from goods_sku
+        where goods_id = #{goodsId}
+    </delete>
+
+    <update id="addSalesBySkuId">
+        update goods_sku
+        set sales = sales + #{num}
+        where sku_id = #{skuId}
+          and total >= sales + #{num}
+    </update>
+
+    <update id="subSalesBySkuId">
+        update goods_sku
+        set sales = sales - #{num}
+        where sku_id = #{skuId}
+    </update>
+
+    <select id="getBySkuId" resultType="com.fzm.mall.entity.dataobject.GoodsSkuDO">
+        select *
+        from goods_sku
+        where sku_id = #{skuId}
+    </select>
+
+    <select id="listByGoodsId" resultType="com.fzm.mall.entity.dataobject.GoodsSkuDO">
+        select *
+        from goods_sku
+        where goods_id = #{goodsId}
+    </select>
+
+    <select id="listBySkuIds" resultType="com.fzm.mall.entity.dataobject.GoodsSkuDO">
+        select *
+        from goods_sku
+        where sku_id in
+        <foreach collection="skuIds" separator="," open="(" item="skuId" close=")">
+            #{skuId}
+        </foreach>
+    </select>
+
+    <select id="listByStatusLimit" resultType="com.fzm.mall.entity.dataobject.GoodsSkuDO">
+        select *
+        from goods_sku
+        where `status` = #{status}
+        order by goods_id, sku_id
+        limit 50
+    </select>
+
+</mapper>

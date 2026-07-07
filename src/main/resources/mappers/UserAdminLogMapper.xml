@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.UserAdminLogMapper">
+
+    <insert id="insert">
+        insert into user_admin_log(address,
+                                   parent_address,
+                                   lang,
+                                   duration,
+                                   method,
+                                   uri,
+                                   params_json,
+                                   result_json,
+                                   client_ip,
+                                   user_agent,
+                                   create_time)
+        VALUES (#{address},
+                #{parentAddress},
+                #{lang},
+                #{duration},
+                #{method},
+                #{uri},
+                #{paramsJson},
+                #{resultJson},
+                #{clientIp},
+                #{userAgent},
+                #{createTime})
+    </insert>
+
+    <select id="listByPageQO" resultType="com.fzm.mall.entity.dataobject.UserAdminLogDO">
+        select ual.*, ap.name as uri_name
+        from user_admin_log ual
+        left join auth_permission ap on ual.uri = ap.uri
+        <where>
+            <if test="parentAddress != null and parentAddress != ''">
+                and ual.parent_address = #{parentAddress}
+            </if>
+            <if test="startTime != null">
+                and ual.create_time >= #{startTime}
+            </if>
+            <if test="endTime != null">
+                and #{endTime} >= ual.create_time
+            </if>
+            <if test="vague != null and vague != ''">
+                and (
+                ual.address = #{vague}
+                or ual.parent_address = #{vague}
+                or ap.name like CONCAT('%', #{vague}, '%')
+                )
+            </if>
+        </where>
+        order by id desc
+    </select>
+</mapper>

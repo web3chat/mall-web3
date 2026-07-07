@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.AuthRoleMapper">
+    <insert id="insert">
+        insert into auth_role(address, `name`)
+        VALUES (#{address}, #{name})
+    </insert>
+
+    <update id="updateByChildRole">
+        update auth_role
+        set `name` = #{name}
+        where child_role = #{childRole}
+    </update>
+
+    <delete id="deleteByChildRole">
+        delete
+        from auth_role
+        where child_role = #{childRole}
+    </delete>
+
+    <select id="getByChildRole" resultType="com.fzm.mall.entity.dataobject.AuthRoleDO">
+        select *
+        from auth_role
+        where child_role = #{childRole}
+    </select>
+
+    <select id="listByChildRoles" resultType="com.fzm.mall.entity.dataobject.AuthRoleDO">
+        select *
+        from auth_role
+        where child_role in
+        <foreach collection="list" separator="," open="(" item="childRole" close=")">
+            #{childRole}
+        </foreach>
+    </select>
+
+    <select id="listByAddress" resultType="com.fzm.mall.entity.dataobject.AuthRoleDO">
+        select *
+        from auth_role
+        where address = #{address}
+    </select>
+
+
+</mapper>

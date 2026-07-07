@@ -1,0 +1,152 @@
+server:
+  port: 10010
+
+spring:
+  application:
+    name: mall-chain
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 110MB
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/mall-chain?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true
+    username: ''
+    password: ''
+    hikari:
+      minimum-idle: 20
+      maximum-pool-size: 500
+      idle-timeout: 60000
+      max-lifetime: 1800000
+      connection-timeout: 600000
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: ''
+
+local:
+  chain:
+    # 合约
+    contract:
+      # web3j接口地址
+      chain-url: ''
+      # 链ID
+      chain-id: 0
+      # 主代币小数点位数
+      decimals: 0
+      # 钱包密码，第一次部署程序时使用，后续不要修改，用于找回签名
+      wallet-password: ''
+      # 助记词，用于生成钱包种子
+      mnemonic: ''
+      # 初次部署程序，没有合约的时候，临时部署合约的私钥，仅用于部署合约，已有合约可以不填
+      deploy-temp-private-key: ''
+      # 合约部署成功后，将合约转交给该地址，没有可以不填
+      deploy-admin-address: ''
+    # 支付
+    pay:
+      bty:
+        # 是否开启支付
+        enable: false
+        # web3j接口地址
+        chain-url: ''
+        # 链ID
+        chain-id: 2999
+        # 合约地址
+        contract-address: ''
+        # 小数点位数
+        decimals: 18
+        # 程序内部计算时，保留的小数点位数
+        calc-decimals: 4
+        # 行情
+        usdt-url: ''
+      bep20-usd:
+        # 是否开启支付
+        enable: false
+        # web3j接口地址
+        chain-url: ''
+        # 链ID
+        chain-id: 56
+        # 合约地址
+        contract-address: '0x55d398326f99059ff775485246999027b3197955'
+        # 小数点位数
+        decimals: 18
+        # 程序内部计算时，保留的小数点位数
+        calc-decimals: 4
+    # 提币
+    withdraw:
+      bty:
+        # 是否支持提币
+        enable: false
+        # web3j接口地址
+        chain-url: ''
+        # 链ID
+        chain-id: 2999
+        # 合约地址
+        contract-address: ''
+        # 小数点位数
+        decimals: 18
+        # 最小提币数量
+        min-number: 10.00
+      usd:
+        # 是否支持提币
+        enable: false
+        # web3j接口地址
+        chain-url: ''
+        # 链ID
+        chain-id: 56
+        # 合约地址
+        contract-address: '0x55d398326f99059ff775485246999027b3197955'
+        # 小数点位数
+        decimals: 18
+        # 最小提币数量
+        min-number: 10.00
+    # SIWE 签名配置
+    siwe:
+      # SIWE 签名域名
+      domain: ''
+  # ali-oss和aws-s3只能使用其中一个
+  file:
+    ali-oss:
+      enable: false
+      bucket: ''
+      region: ''
+      endpoint: ''
+      access-key-id: ''
+      access-key-secret: ''
+    aws-s3:
+      enable: false
+      bucket: ''
+      region: ''
+      endpoint: ''
+      access-key-id: ''
+      access-key-secret: ''
+  logistics:
+    # 是否开启，关闭后不返回真实物流信息
+    enable: false
+    # 购买地址：https://market.aliyun.com/detail/cmapi00066593
+    app-code: ''
+
+# 接口文档配置
+knife4j:
+  # 增强模式，该项不改动
+  enable: true
+  # 是否生产环境，true时，所有文档都不可用
+  production: false
+
+# Mybatis配置
+mybatis:
+  # 让MyBatis映射指定Mybatis的Mapper文件
+  mapper-locations: classpath:mappers/*xml
+  configuration:
+    # 让Mybatis映射下划线到驼峰
+    map-underscore-to-camel-case: true
+
+# 分页插件配置
+pagehelper:
+  helper-dialect: mysql
+  # 页码<1查询第一页，页码>总页数查询最后一页
+  reasonable: true
+  # 支持通过Mapper接口参数来传递分页参数
+  support-methods-arguments: true
+  params: count=countSql

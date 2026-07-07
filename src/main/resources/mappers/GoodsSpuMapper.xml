@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.fzm.mall.mapper.GoodsSpuMapper">
+
+    <insert id="insert">
+        insert into goods_spu(goods_id,
+                              address,
+                              type,
+                              menu_json,
+                              classify_json,
+                              name,
+                              des,
+                              detail,
+                              cover,
+                              image_json,
+                              price,
+                              total,
+                              sales,
+                              favorite,
+                              order_limit,
+                              sale_type,
+                              sale_time,
+                              sale_time_normal,
+                              `status`,
+                              hidden_status,
+                              create_time,
+                              recommend)
+        VALUES (#{goodsId},
+                #{address},
+                #{type},
+                #{menuJson},
+                #{classifyJson},
+                #{name},
+                #{des},
+                #{detail},
+                #{cover},
+                #{imageJson},
+                #{price},
+                #{total},
+                #{sales},
+                #{favorite},
+                #{orderLimit},
+                #{saleType},
+                #{saleTime},
+                #{saleTimeNormal},
+                #{status},
+                #{hiddenStatus},
+                #{createTime},
+                #{recommend})
+    </insert>
+
+    <update id="updateByGoodsId">
+        update goods_spu
+        <set>
+            <if test="type != null">
+                type = #{type},
+            </if>
+            <if test="menuJson != null">
+                menu_json = #{menuJson},
+            </if>
+            <if test="classifyJson != null">
+                classify_json = #{classifyJson},
+            </if>
+            <if test="name != null">
+                `name` = #{name},
+            </if>
+            <if test="des != null">
+                des = #{des},
+            </if>
+            <if test="detail != null">
+                detail = #{detail},
+            </if>
+            <if test="cover != null">
+                cover = #{cover},
+            </if>
+            <if test="imageJson != null">
+                image_json = #{imageJson},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="total != null">
+                total = #{total},
+            </if>
+            <if test="orderLimit != null">
+                order_limit = #{orderLimit},
+            </if>
+            <if test="saleType != null">
+                sale_type = #{saleType},
+            </if>
+            <if test="saleTime != null">
+                sale_time = #{saleTime},
+            </if>
+            <if test="saleTimeNormal != null">
+                sale_time_normal = #{saleTimeNormal},
+            </if>
+            <if test="status != null">
+                `status` = #{status},
+            </if>
+            <if test="hiddenStatus != null">
+                hidden_status = #{hiddenStatus},
+            </if>
+            <if test="recommend != null">
+                recommend = #{recommend},
+            </if>
+        </set>
+        where goods_id = #{goodsId}
+        <if test="originalStatus != null">
+            and `status` = #{originalStatus}
+        </if>
+    </update>
+
+    <update id="updateStatusByAddress">
+        update goods_spu
+        set status = #{toStatus}
+        where address = #{address}
+          and status = #{fromStatus}
+    </update>
+
+    <delete id="deleteByGoodsId">
+        delete
+        from goods_spu
+        where goods_id = #{goodsId}
+    </delete>
+
+    <update id="addSalesByGoodsId">
+        update goods_spu
+        set sales = sales + #{num}
+        where goods_id = #{goodsId}
+          and total >= sales + #{num}
+    </update>
+
+    <update id="subSalesByGoodsId">
+        update goods_spu
+        set sales = sales - #{num}
+        where goods_id = #{goodsId}
+    </update>
+
+    <update id="favoriteByGoodsId">
+        update goods_spu
+        set favorite = favorite + 1
+        where goods_id = #{goodsId}
+    </update>
+
+    <update id="unFavoriteByGoodsId">
+        update goods_spu
+        set favorite = favorite - 1
+        where goods_id = #{goodsId}
+    </update>
+
+    <select id="getByGoodsId" resultType="com.fzm.mall.entity.dataobject.GoodsSpuDO">
+        select *
+        from goods_spu
+        where goods_id = #{goodsId}
+    </select>
+
+    <select id="listByGoodsIds" resultType="com.fzm.mall.entity.dataobject.GoodsSpuDO">
+        select *
+        from goods_spu
+        where goods_id in
+        <foreach collection="goodsIds" separator="," open="(" item="goodsId" close=")">
+            #{goodsId}
+        </foreach>
+    </select>
+
+    <select id="listByStatusLimit" resultType="com.fzm.mall.entity.dataobject.GoodsSpuDO">
+        select *
+        from goods_spu
+        where `status` in
+        <foreach collection="list" separator="," open="(" item="status" close=")">
+            #{status}
+        </foreach>
+        order by goods_id
+        limit 50
+    </select>
+
+    <select id="listByPageQO" resultType="com.fzm.mall.entity.dataobject.GoodsSpuDO">
+        select *
+        <if test="orderType == 0">
+            ,(
+            ln(1 + sales)
+            + ln(1 + favorite) * 0.2
+            + IF (recommend = 1, 100, 0)
+            + 3 / (1 + IF(sale_time > #{nowTimestamp}, 0, (#{nowTimestamp} - sale_time) / 604800000))
+            ) as score
+        </if>
+        from goods_spu
+        <where>
+            <if test="address != null and address != ''">
+                and address = #{address}
+            </if>
+            <if test="status != null and status != -1">
+                and `status` = #{status}
+            </if>
+            <if test="hiddenStatus != null and hiddenStatus != -1">
+                and hidden_status = #{hiddenStatus}
+            </if>
+            <if test="recommend != null and recommend != -1">
+                and recommend = #{recommend}
+            </if>
+            <if test="menuId != null and menuId > 0">
+                and JSON_CONTAINS(menu_json -> '$[*]', JSON_ARRAY(#{menuId}), '$')
+            </if>
+            <if test="vague != null and vague != ''">
+                and (
+                goods_id = #{vague}
+                or address = #{vague}
+                or `name` like CONCAT('%', #{vague}, '%')
+                )
+            </if>
+        </where>
+        <if test="orderType == -1">
+            order by goods_id desc
+        </if>
+        <if test="orderType == 0">
+            order by score desc, show_order asc, sale_time desc, goods_id desc
+        </if>
+        <if test="orderType == 1">
+            order by sales asc, sale_time desc, goods_id desc
+        </if>
+        <if test="orderType == 2">
+            order by sales desc, sale_time desc, goods_id desc
+        </if>
+        <if test="orderType == 3">
+            order by price asc, sale_time desc, goods_id desc
+        </if>
+        <if test="orderType == 4">
+            order by price desc, sale_time desc, goods_id desc
+        </if>
+        <if test="orderType == 5">
+            order by sale_time asc, goods_id desc
+        </if>
+        <if test="orderType == 6">
+            order by sale_time desc, goods_id desc
+        </if>
+    </select>
+
+</mapper>
