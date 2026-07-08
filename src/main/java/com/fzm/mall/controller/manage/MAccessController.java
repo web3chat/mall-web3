@@ -44,7 +44,7 @@ public class MAccessController {
     @Parameter(name = "address", description = "地址", in = ParameterIn.QUERY)
     @GetMapping("/content")
     public ResponseVO<PresignContentVO> presignContent(@RequestParam("address") String address) {
-        String presignContent = signatureComponent.getPresignContent(address, "");
+        String presignContent = signatureComponent.createChallenge(address, "");
         return ResponseUtils.success(new PresignContentVO(presignContent));
     }
 
@@ -52,7 +52,7 @@ public class MAccessController {
     @Operation(summary = "登录")
     @PostMapping("/login")
     public ResponseVO<AuthorizationVO> login(@RequestBody LoginRO loginRO) {
-        signatureComponent.valid(loginRO);
+        signatureComponent.verifyAndGetInviteCode(loginRO.getAddress(), loginRO.getSignature());
         String address = loginRO.getAddress();
 
         UserAdminDO selectUser = userAdminService.getByAddress(address);

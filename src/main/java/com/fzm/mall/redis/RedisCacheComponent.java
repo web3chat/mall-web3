@@ -48,5 +48,11 @@ public class RedisCacheComponent {
         return redisTemplate.getExpire(key);
     }
 
-
+    /**
+     * 执行 Lua 脚本（返回 Long）
+     */
+    public <T> T executeLua(org.springframework.data.redis.core.script.DefaultRedisScript<T> script,
+                            java.util.List<String> keys, Object... args) {
+        return stringRedisTemplate.execute(script, keys, args);
+    }
 }

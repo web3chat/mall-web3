@@ -47,7 +47,7 @@ public class AccessController {
     })
     @GetMapping("/content")
     public ResponseVO<PresignContentVO> presignContent(@RequestParam("address") String address, @RequestParam("inviteAddress") String inviteAddress) {
-        String presignContent = signatureComponent.getPresignContent(address, inviteAddress);
+        String presignContent = signatureComponent.createChallenge(address, inviteAddress);
         return ResponseUtils.success(new PresignContentVO(presignContent));
     }
 
@@ -55,7 +55,7 @@ public class AccessController {
     @Operation(summary = "登录")
     @PostMapping("/login")
     public ResponseVO<AuthorizationVO> login(@RequestBody LoginRO loginRO) {
-        String parentAddress = signatureComponent.valid(loginRO);
+        String parentAddress = signatureComponent.verifyAndGetInviteCode(loginRO.getAddress(), loginRO.getSignature());
         String address = loginRO.getAddress();
 
         UserDO selectUser = userService.getByAddress(address);

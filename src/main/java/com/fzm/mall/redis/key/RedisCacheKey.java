@@ -39,7 +39,12 @@ public class RedisCacheKey {
         public static final String logistics_by_order_id = prefix + "order:logistics:%s:%s";
     }
 
-    public static class Siwe {
-        public static final String nonce = prefix + "siwe:nonce:%s";
+    public static final class Siwe {
+        private Siwe() {
+        }
+
+        public static String contentByAddressAndDevice(String address) {
+            return prefix + "siwe:message:address:" + address;
+        }
     }
 }

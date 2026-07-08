@@ -2,12 +2,19 @@ package com.fzm.mall.third.chain.wallet;
 
 import com.fzm.mall.third.chain.entity.IndexEnum;
 import com.fzm.mall.third.chain.entity.Wallet;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.web3j.crypto.Bip32ECKeyPair;
 import org.web3j.crypto.Keys;
+import org.web3j.crypto.Sign;
 import org.web3j.utils.Numeric;
+
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 import static org.web3j.crypto.Bip32ECKeyPair.HARDENED_BIT;
 
+@Slf4j
 public class ETHUtils {
 
     public static Wallet newWallet(int uid, IndexEnum indexEnum) {
@@ -27,5 +34,21 @@ public class ETHUtils {
         String privateKey = Numeric.toHexStringNoPrefixZeroPadded(bip44Keypair.getPrivateKey(), 64);
 
         return new Wallet(address, privateKey);
+    }
+
+    public static String recoverAddressFromSignature(String content, String signature) {
+        // personal_sign 签名：130 字符（无 0x 前缀）或 132 字符（含 0x）
+        if (StringUtils.isBlank(signature) || (signature.length() != 130 && signature.length() != 132)) {
+            return null;
+        }
+        try {
+            Sign.SignatureData signatureData = Sign.signatureDataFromHex(signature);
+            BigInteger publicKey = Sign.signedPrefixedMessageToKey(
+                    content.getBytes(StandardCharsets.UTF_8), signatureData);
+            return Numeric.prependHexPrefix(Keys.getAddress(publicKey));
+        } catch (Exception e) {
+            log.error("ETH从签名推导地址异常：{}", e.getMessage(), e);
+        }
+        return null;
     }
 }
